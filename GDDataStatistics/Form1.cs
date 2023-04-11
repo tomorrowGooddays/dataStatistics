@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -31,12 +31,12 @@ namespace GDDataStatistics
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Multiselect = true;//该值确定是否可以选择多个文件
-            dialog.Title = "请选择文件夹";
+            dialog.Title = "请选择文件";
             dialog.Filter = "所有文件(*.*)|*.xlsx";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 this.fileName.Text = dialog.FileName;
-                ShowInfo($"打开文件{dialog.FileName}");
+                ShowInfo($"选择文件{dialog.FileName}");
             }
         }
 
@@ -63,7 +63,6 @@ namespace GDDataStatistics
         public void ShowInfo(string msg)
         {
             this.BeginInvoke((Action)(()=>{
-                this.log.BackColor = Color.Green;
                 this.log.AppendText($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}  {msg}");
                 this.log.AppendText(Environment.NewLine);
                 this.log.ScrollToCaret();
