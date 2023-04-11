@@ -30,7 +30,7 @@ namespace GDDataStatistics
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Multiselect = true;//该值确定是否可以选择多个文件
+            dialog.Multiselect = false;//该值确定是否可以选择多个文件
             dialog.Title = "请选择文件";
             dialog.Filter = "所有文件(*.*)|*.xlsx";
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -51,6 +51,19 @@ namespace GDDataStatistics
         /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择文件路径";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                this.fileName.Text = dialog.SelectedPath;
+                ShowInfo($"选择文件夹{this.fileName.Text}");
+
+                //返回指定目录中的文件的名称（绝对路径）
+                string[] files = System.IO.Directory.GetFiles(dialog.SelectedPath);
+                //获取Test文件夹下所有文件名称
+                string[] files2 = System.IO.Directory.GetFiles(dialog.SelectedPath, "*.xlsx", System.IO.SearchOption.AllDirectories);
+            }
 
         }
 
