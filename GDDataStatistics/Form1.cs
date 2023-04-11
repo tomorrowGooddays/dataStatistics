@@ -62,7 +62,26 @@ namespace GDDataStatistics
                 //返回指定目录中的文件的名称（绝对路径）
                 string[] files = System.IO.Directory.GetFiles(dialog.SelectedPath);
                 //获取Test文件夹下所有文件名称
-                string[] files2 = System.IO.Directory.GetFiles(dialog.SelectedPath, "*.xlsx", System.IO.SearchOption.AllDirectories);
+                List<string> filePaths = System.IO.Directory.GetFiles(dialog.SelectedPath, "*.xlsx", System.IO.SearchOption.AllDirectories).ToList();
+
+                if (filePaths != null && filePaths.Count > 0)
+                {
+                    MessageBox.Show($"当前文件夹有:{filePaths.Count()}个文件准备开始处理");
+                    foreach (var filePath in filePaths)
+                    {
+                        ShowInfo($"开始处理文件：{filePath}。");
+
+                        ExcelDataFactory.LoadExcelData(filePath);
+
+                        ShowInfo($"文件：{filePath}处理完成。");
+                    }
+
+                    MessageBox.Show("所有文件处理完成，请查看导出结果");
+                }
+                else
+                {
+                    MessageBox.Show("当前路径下没有可执行的Excel文件，请确认路径是否选错");
+                }
             }
 
         }
@@ -75,7 +94,8 @@ namespace GDDataStatistics
 
         public void ShowInfo(string msg)
         {
-            this.BeginInvoke((Action)(()=>{
+            this.BeginInvoke((Action)(() =>
+            {
                 this.log.AppendText($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}  {msg}");
                 this.log.AppendText(Environment.NewLine);
                 this.log.ScrollToCaret();
