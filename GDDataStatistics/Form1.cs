@@ -37,6 +37,10 @@ namespace GDDataStatistics
             {
                 this.fileName.Text = dialog.FileName;
                 ShowInfo($"选择文件{dialog.FileName}");
+
+                Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(this.fileName.Text);
+
+                DataTable dataTable = DataMergeTool.ConvertData(dataDic);
             }
         }
 
@@ -69,13 +73,27 @@ namespace GDDataStatistics
                     if (filePaths != null && filePaths.Count > 0)
                     {
                         MessageBox.Show($"当前文件夹有:{filePaths.Count()}个文件准备开始处理");
+                        List<Dictionary<string, Dictionary<string, double>>> dataList = new List<Dictionary<string, Dictionary<string, double>>>();
                         foreach (var filePath in filePaths)
                         {
                             ShowInfo($"开始处理文件：{filePath}。");
 
-                            ExcelDataFactory.LoadExcelData(filePath);
+                            Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(filePath);
+
+                            if (dataDic != null)
+                            {
+                                dataList.Add(dataDic);
+                            }
 
                             ShowInfo($"文件：{filePath}处理完成。");
+                        }
+
+                        if (dataList != null && dataList.Count > 0)
+                        {
+                            ShowInfo("========开始合并数据==========");
+                            var dicData = DataMergeTool.MergeData(dataList);
+                            //把dataTable显示在页面
+                            DataTable dataTable = DataMergeTool.ConvertData(dicData);
                         }
 
                         MessageBox.Show("所有文件处理完成，请查看导出结果");
@@ -102,12 +120,9 @@ namespace GDDataStatistics
 
         public void ShowInfo(string msg)
         {
-            this.BeginInvoke((Action)(() =>
-            {
-                this.log.AppendText($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}  {msg}");
-                this.log.AppendText(Environment.NewLine);
-                this.log.ScrollToCaret();
-            }));
+            this.log.AppendText($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}  {msg}");
+            this.log.AppendText(Environment.NewLine);
+            this.log.ScrollToCaret();
         }
     }
 }

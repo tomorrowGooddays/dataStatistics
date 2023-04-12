@@ -14,7 +14,7 @@ namespace GDDataStatistics
         SZJB = 42,
         GDEJDLJB = 44,
         BHQPDJB = 49,
-        BHQTCHDJB = 52,
+        BHQTCHDJB = 51,
         BHQTRZDJB = 53,
         BHQTRYJZ_1 = 55,
         BHQTRPHZJB = 57,

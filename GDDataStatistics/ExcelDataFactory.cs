@@ -2,13 +2,14 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 
 namespace GDDataStatistics
 {
     public class ExcelDataFactory
     {
+        private static Dictionary<int, string> cellIndexAndNameDic = new Dictionary<int, string>();
+        //每张表统计出的结果
         private static Dictionary<string, Dictionary<string, double>> totalDataDic = new Dictionary<string, Dictionary<string, double>>();
 
         private static Dictionary<string, double> ZRQDMDic = new Dictionary<string, double>();
@@ -24,13 +25,14 @@ namespace GDDataStatistics
         private static Dictionary<string, double> BHQPDJBDic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQTCHDJBDic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQTRZDJBDic = new Dictionary<string, double>();
-        private static Dictionary<string, double> BHQTRYJZ_1icDic = new Dictionary<string, double>();
+        private static Dictionary<string, double> BHQTRYJZ_1Dic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQTRPHZJBDic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQSWDYXJBDic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQTRZJS_1Dic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQSZJBDic = new Dictionary<string, double>();
         private static Dictionary<string, double> BHQGDEJDLJDic = new Dictionary<string, double>();
         private static List<int> titleIndexList = new List<int>();
+        private static List<string> titieNameList = new List<string>();
         /// <summary>
         /// 通过地址加载excel数据
         /// </summary>
@@ -48,30 +50,55 @@ namespace GDDataStatistics
                 while (rows.MoveNext())
                 {
                     var row = (XSSFRow)rows.Current;
-                    if (row.RowNum < 2) continue;
 
-                    //图斑地类面积
-                    double TBDLMJValue = 0;
-                    //循环列
-                    for (var i = 0; i < row.LastCellNum; i++)
+                    if (row.RowNum <= 0) continue;
+                    if (row.RowNum == 1)
                     {
-                        if (!titleIndexList.Contains(i)) continue;
-
-                        var cell = row.GetCell(i);
-                        if (cell == null)
+                        //解析表列名
+                        for (var i = 0; i < row.LastCellNum; i++)
                         {
-                            continue;
-                        }
-                        else
-                        {
-                         
-                            string cellValue = getDealCellData(cell);
-                            switch (i)
+                            var cell = row.GetCell(i);
+                            if (cell == null)
                             {
-                                case (int)TitleNameEnum.TBDLMJ:
+                                continue;
+                            }
+                            else
+                            {
+                                string cellValue = getDealCellData(cell);
+                                if (!string.IsNullOrWhiteSpace(cellValue) && titieNameList.Contains(cellValue))
+                                {
+                                    //需要统计的列下标
+                                    titleIndexList.Add(i);
+                                    cellIndexAndNameDic.Add(i, cellValue);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //解析表数据
+                        //图斑地类面积
+                        double TBDLMJValue = 0;
+                        //循环列
+                        for (var i = 0; i < row.LastCellNum; i++)
+                        {
+                            if (!titleIndexList.Contains(i)) continue;
+
+                            var cell = row.GetCell(i);
+                            if (cell == null)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                string cellValue = getDealCellData(cell);
+                                string titleName = cellIndexAndNameDic[i];
+
+                                if (titleName.Equals(TitleNameEnum.TBDLMJ.ToString()))
+                                {
                                     TBDLMJValue = double.Parse(cellValue);
-                                    break;
-                                case (int)TitleNameEnum.ZRQDM:
+                                }else if (titleName.Equals(TitleNameEnum.ZRQDM.ToString()))
+                                {
                                     if (ZRQDMDic.ContainsKey(cellValue))
                                     {
                                         ZRQDMDic[cellValue] += TBDLMJValue;
@@ -82,8 +109,8 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.ZRQDM.ToString()] = ZRQDMDic;
-                                    break;
-                                case (int)TitleNameEnum.PDJB:
+                                }else if (titleName.Equals(TitleNameEnum.PDJB.ToString()))
+                                {
                                     if (PDJBDic.ContainsKey(cellValue))
                                     {
                                         PDJBDic[cellValue] += TBDLMJValue;
@@ -94,8 +121,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.PDJB.ToString()] = PDJBDic;
-                                    break;
-                                case (int)TitleNameEnum.TCHDJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.TCHDJB.ToString()))
+                                {
                                     if (TCHDJBDic.ContainsKey(cellValue))
                                     {
                                         TCHDJBDic[cellValue] += TBDLMJValue;
@@ -106,8 +134,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.TCHDJB.ToString()] = TCHDJBDic;
-                                    break;
-                                case (int)TitleNameEnum.TRZDJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.TRZDJB.ToString()))
+                                {
                                     if (TRZDJBDic.ContainsKey(cellValue))
                                     {
                                         TRZDJBDic[cellValue] += TBDLMJValue;
@@ -118,8 +147,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.TRZDJB.ToString()] = TRZDJBDic;
-                                    break;
-                                case (int)TitleNameEnum.TRYJZHLJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.TRYJZHLJB.ToString()))
+                                {
                                     if (TRYJZHLJBDic.ContainsKey(cellValue))
                                     {
                                         TRYJZHLJBDic[cellValue] += TBDLMJValue;
@@ -130,8 +160,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.TRYJZHLJB.ToString()] = TRYJZHLJBDic;
-                                    break;
-                                case (int)TitleNameEnum.TRPHZJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.TRPHZJB.ToString()))
+                                {
                                     if (TRPHZJBDic.ContainsKey(cellValue))
                                     {
                                         TRPHZJBDic[cellValue] += TBDLMJValue;
@@ -142,8 +173,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.TRPHZJB.ToString()] = TRPHZJBDic;
-                                    break;
-                                case (int)TitleNameEnum.SWDYXJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.SWDYXJB.ToString()))
+                                {
                                     if (SWDYXJBDic.ContainsKey(cellValue))
                                     {
                                         SWDYXJBDic[cellValue] += TBDLMJValue;
@@ -154,8 +186,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.SWDYXJB.ToString()] = SWDYXJBDic;
-                                    break;
-                                case (int)TitleNameEnum.TRZJSWRJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.TRZJSWRJB.ToString()))
+                                {
                                     if (TRZJSWRJBDic.ContainsKey(cellValue))
                                     {
                                         TRZJSWRJBDic[cellValue] += TBDLMJValue;
@@ -166,8 +199,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.TRZJSWRJB.ToString()] = TRZJSWRJBDic;
-                                    break;
-                                case (int)TitleNameEnum.SZJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.SZJB.ToString()))
+                                {
                                     if (SZJBDic.ContainsKey(cellValue))
                                     {
                                         SZJBDic[cellValue] += TBDLMJValue;
@@ -178,8 +212,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.SZJB.ToString()] = SZJBDic;
-                                    break;
-                                case (int)TitleNameEnum.GDEJDLJB:
+                                }
+                                else if (titleName.Equals(TitleNameEnum.GDEJDLJB.ToString()))
+                                {
                                     if (GDEJDLJBDic.ContainsKey(cellValue))
                                     {
                                         GDEJDLJBDic[cellValue] += TBDLMJValue;
@@ -190,9 +225,9 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.GDEJDLJB.ToString()] = GDEJDLJBDic;
-                                    break;
-                                case (int)TitleNameEnum.BHQPDJB:
-
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQPDJB.ToString()))
+                                {
                                     if (BHQPDJBDic.ContainsKey(cellValue))
                                     {
                                         BHQPDJBDic[cellValue] += TBDLMJValue;
@@ -203,25 +238,115 @@ namespace GDDataStatistics
                                     }
 
                                     totalDataDic[TitleNameEnum.BHQPDJB.ToString()] = BHQPDJBDic;
-                                    break;
-                                case (int)TitleNameEnum.BHQTCHDJB:
-                                    break;
-                                case (int)TitleNameEnum.BHQTRZDJB:
-                                    break;
-                                case (int)TitleNameEnum.BHQTRYJZ_1:
-                                    break;
-                                case (int)TitleNameEnum.BHQTRPHZJB:
-                                    break;
-                                case (int)TitleNameEnum.BHQSWDYXJB:
-                                    break;
-                                case (int)TitleNameEnum.BHQTRZJS_1:
-                                    break;
-                                case (int)TitleNameEnum.BHQSZJB:
-                                    break;
-                                case (int)TitleNameEnum.BHQGDEJDLJ:
-                                    break;
-                                default:
-                                    break;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQTCHDJB.ToString()))
+                                {
+                                    if (BHQTCHDJBDic.ContainsKey(cellValue))
+                                    {
+                                        BHQTCHDJBDic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQTCHDJBDic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQTCHDJB.ToString()] = BHQTCHDJBDic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQTRZDJB.ToString()))
+                                {
+                                    if (BHQTRZDJBDic.ContainsKey(cellValue))
+                                    {
+                                        BHQTRZDJBDic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQTRZDJBDic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQTRZDJB.ToString()] = BHQTRZDJBDic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQTRYJZ_1.ToString()))
+                                {
+                                    if (BHQTRYJZ_1Dic.ContainsKey(cellValue))
+                                    {
+                                        BHQTRYJZ_1Dic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQTRYJZ_1Dic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQTRYJZ_1.ToString()] = BHQTRYJZ_1Dic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQTRPHZJB.ToString()))
+                                {
+                                    if (BHQTRPHZJBDic.ContainsKey(cellValue))
+                                    {
+                                        BHQTRPHZJBDic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQTRPHZJBDic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQTRPHZJB.ToString()] = BHQTRPHZJBDic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQSWDYXJB.ToString()))
+                                {
+                                    if (BHQSWDYXJBDic.ContainsKey(cellValue))
+                                    {
+                                        BHQSWDYXJBDic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQSWDYXJBDic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQSWDYXJB.ToString()] = BHQSWDYXJBDic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQTRZJS_1.ToString()))
+                                {
+                                    if (BHQTRZJS_1Dic.ContainsKey(cellValue))
+                                    {
+                                        BHQTRZJS_1Dic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQTRZJS_1Dic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQTRZJS_1.ToString()] = BHQTRZJS_1Dic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQSZJB.ToString()))
+                                {
+                                    if (BHQSZJBDic.ContainsKey(cellValue))
+                                    {
+                                        BHQSZJBDic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQSZJBDic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQSZJB.ToString()] = BHQSZJBDic;
+                                }
+                                else if (titleName.Equals(TitleNameEnum.BHQGDEJDLJ.ToString()))
+                                {
+                                    if (BHQGDEJDLJDic.ContainsKey(cellValue))
+                                    {
+                                        BHQGDEJDLJDic[cellValue] += TBDLMJValue;
+                                    }
+                                    else
+                                    {
+                                        BHQGDEJDLJDic.Add(cellValue, TBDLMJValue);
+                                    }
+
+                                    totalDataDic[TitleNameEnum.BHQGDEJDLJ.ToString()] = BHQGDEJDLJDic;
+                                }
+                                else
+                                {
+                                    //do nothing
+                                }
                             }
                         }
                     }
@@ -235,6 +360,7 @@ namespace GDDataStatistics
         {
             titleIndexList.Clear();
             totalDataDic.Clear();
+            cellIndexAndNameDic.Clear();
 
             ZRQDMDic.Clear();
             PDJBDic.Clear();
@@ -249,38 +375,23 @@ namespace GDDataStatistics
             BHQPDJBDic.Clear();
             BHQTCHDJBDic.Clear();
             BHQTRZDJBDic.Clear();
-            BHQTRYJZ_1icDic.Clear();
+            BHQTRYJZ_1Dic.Clear();
             BHQTRPHZJBDic.Clear();
             BHQSWDYXJBDic.Clear();
             BHQTRZJS_1Dic.Clear();
             BHQSZJBDic.Clear();
             BHQGDEJDLJDic.Clear();
 
-            Array values = Enum.GetValues(typeof(TitleNameEnum));
-            foreach (var value in values)
+            Array names = Enum.GetNames(typeof(TitleNameEnum));
+            foreach (var name in names)
             {
-                titleIndexList.Add((int)value);
+                string cellName = name.ToString();
+                titieNameList.Add(cellName);
+                if (!cellName.Equals(TitleNameEnum.TBDLMJ.ToString()))//此列是图斑面积
+                {
+                    totalDataDic.Add(cellName, new Dictionary<string, double>());
+                }
             }
-
-            totalDataDic.Add(TitleNameEnum.ZRQDM.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.PDJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.TCHDJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.TRZDJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.TRYJZHLJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.TRPHZJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.SWDYXJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.TRZJSWRJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.SZJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.GDEJDLJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQPDJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQTCHDJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQTRZDJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQTRYJZ_1.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQTRPHZJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQSWDYXJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQTRZJS_1.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQSZJB.ToString(), new Dictionary<string, double>());
-            totalDataDic.Add(TitleNameEnum.BHQGDEJDLJ.ToString(), new Dictionary<string, double>());
         }
 
         private static string getDealCellData(ICell cell)
