@@ -36,6 +36,7 @@ namespace GDDataStatistics
 
             //DataTable dt = DataMergeTool.ConvertData(result);
 
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
