@@ -43,6 +43,8 @@ namespace GDDataStatistics
                 DataTable dataTable = DataMergeTool.ConvertData(dataDic);
 
                 dataGridView1.DataSource = dataTable;
+
+                DataMergeTool.ExportData(dialog.FileName, dataDic);
                 MessageBox.Show("文件处理完成，请查看导出结果");
             }
         }
@@ -99,6 +101,8 @@ namespace GDDataStatistics
                             DataTable dataTable = DataMergeTool.ConvertData(dicData);
 
                             dataGridView1.DataSource = dataTable;
+
+                            DataMergeTool.ExportData(this.fileName.Text+"\\计算结果"+ ".xlsx", dicData);
                         }
 
                         MessageBox.Show("所有文件处理完成，请查看导出结果");
