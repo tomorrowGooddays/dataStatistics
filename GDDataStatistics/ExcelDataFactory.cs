@@ -64,7 +64,7 @@ namespace GDDataStatistics
                             }
                             else
                             {
-                                string cellValue = getDealCellData(cell);
+                                string cellValue = DataConvertTool.getDealCellData(cell);
                                 if (!string.IsNullOrWhiteSpace(cellValue) && titieNameList.Contains(cellValue))
                                 {
                                     //需要统计的列下标
@@ -91,7 +91,7 @@ namespace GDDataStatistics
                             }
                             else
                             {
-                                string cellValue = getDealCellData(cell);
+                                string cellValue = DataConvertTool.getDealCellData(cell);
                                 string titleName = cellIndexAndNameDic[i];
 
                                 if (titleName.Equals(TitleNameEnum.TBDLMJ.ToString()))
@@ -394,37 +394,5 @@ namespace GDDataStatistics
             }
         }
 
-        private static string getDealCellData(ICell cell)
-        {
-            string value = string.Empty;
-            switch (cell.CellType)
-            {
-                case CellType.Boolean:
-                    value = cell.BooleanCellValue.ToString();
-                    break;
-                case CellType.Numeric:
-                case CellType.Formula:
-                    try
-                    {
-                        value = cell.NumericCellValue.ToString();
-                    }
-                    catch
-                    {
-                        value = cell.StringCellValue;
-                    }
-                    break;
-                case CellType.String:
-                    value = cell.StringCellValue;
-                    break;
-                case CellType.Error:
-                case CellType.Blank:
-                    break;
-                default:
-                    value = cell.CellFormula;
-                    break;
-            }
-
-            return value;
-        }
     }
 }

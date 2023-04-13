@@ -41,6 +41,9 @@ namespace GDDataStatistics
                 Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(this.fileName.Text);
 
                 DataTable dataTable = DataMergeTool.ConvertData(dataDic);
+
+                dataGridView1.DataSource = dataTable;
+                MessageBox.Show("文件处理完成，请查看导出结果");
             }
         }
 
@@ -94,6 +97,8 @@ namespace GDDataStatistics
                             var dicData = DataMergeTool.MergeData(dataList);
                             //把dataTable显示在页面
                             DataTable dataTable = DataMergeTool.ConvertData(dicData);
+
+                            dataGridView1.DataSource = dataTable;
                         }
 
                         MessageBox.Show("所有文件处理完成，请查看导出结果");
@@ -123,6 +128,11 @@ namespace GDDataStatistics
             this.log.AppendText($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}  {msg}");
             this.log.AppendText(Environment.NewLine);
             this.log.ScrollToCaret();
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

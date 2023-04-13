@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constant.cs" />
+    <Compile Include="DataConvertTool.cs" />
     <Compile Include="DataMergeTool.cs" />
     <Compile Include="ExcelDataFactory.cs" />
     <Compile Include="Form1.cs">
