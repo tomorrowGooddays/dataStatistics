@@ -109,39 +109,21 @@ namespace GDDataStatistics
         }
 
 
-        public static void ExportData(string filePathAndName, Dictionary<string, Dictionary<string, double>> dicData)
+        public static string ExportData(string filePathAndName, Dictionary<string, Dictionary<string, double>> dicData)
         {
-            if (string.IsNullOrEmpty(filePathAndName)) return;
+            if (string.IsNullOrEmpty(filePathAndName)) return "";
 
-            filePathAndName = filePathAndName.Replace(".xlsx", $"{DateTime.Now.ToString("yyyyMMddHHmmss")}.xlsx");
+            filePathAndName = filePathAndName.Replace(".xlsx", $"{DateTime.Now.ToString("yyyyMMdd")}.xlsx");
 
             //创建workbook，说白了就是在内存中创建一个Excel文件
-            IWorkbook workbook = new XSSFWorkbook();
-            ISheet sheetGD = workbook.CreateSheet("GD");
-            ISheet sheetHF = workbook.CreateSheet("HF");
+            IWorkbook workbook = CreateWorkbook();
+            ISheet sheetGD = workbook.GetSheet(SheetNameEnum.GD.ToString());
 
-            IRow rowGD = sheetGD.CreateRow(0);//添加第1行,注意行列的索引都是从0开始的
-
-            ICell cell1GD = rowGD.CreateCell(0);//给第1行添加第1个单元格
-            cell1GD.SetCellValue("分类指标");
-            ICell cell2GD = rowGD.CreateCell(1);//给第1行添加第1个单元格
-            cell2GD.SetCellValue("指标分级");
-            ICell cell3GD = rowGD.CreateCell(2);//给第1行添加第1个单元格
-            cell3GD.SetCellValue("四川盆地");
-            ICell cell4GD = rowGD.CreateCell(3);//给第1行添加第1个单元格
-            cell4GD.SetCellValue("合计");
-
-
-            IRow rowHF = sheetHF.CreateRow(0);
-            ICell cell1HF = rowHF.CreateCell(0);//给第1行添加第1个单元格
-            cell1HF.SetCellValue("分类指标");
-            ICell cell2HF = rowHF.CreateCell(1);//给第1行添加第1个单元格
-            cell2HF.SetCellValue("指标分级");
-            ICell cell3HF = rowHF.CreateCell(2);//给第1行添加第1个单元格
-            cell3HF.SetCellValue("四川盆地");
-            ICell cell4HF = rowHF.CreateCell(3);//给第1行添加第1个单元格
-            cell4HF.SetCellValue("合计");
-
+            // 创建样式对象
+            var style = workbook.CreateCellStyle();
+            // 设置单元格格式为数字格式，并保留两位小数
+            style.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
+           
             int rowNumber = 1;
             for (int i = 0; i < dicData.Count; i++)
             {
@@ -171,17 +153,13 @@ namespace GDDataStatistics
                     ICell cell2 = rowGDSub.CreateCell(1);
                     cell2.SetCellValue(itemJ.Key);
 
-                    //ICellStyle cellStyle = workbook.CreateCellStyle();
-                    //cellStyle.DataFormat =  new XSSFDataFormat().GetFormat("0.00");
-                    
-
                     ICell cell3 = rowGDSub.CreateCell(2);
                     cell3.SetCellValue(itemJ.Value);
-                    //cell3.CellStyle = cellStyle;
+                    cell3.CellStyle = style;
 
                     ICell cell4 = rowGDSub.CreateCell(3);
                     cell4.SetCellValue(itemJ.Value);
-                    //cell4.CellStyle = cellStyle;
+                    cell4.CellStyle = style;
 
                     rowNumber++;
                 }
@@ -197,6 +175,44 @@ namespace GDDataStatistics
                 workbook.Write(file);
             }
 
+
+            return filePathAndName;
+        }
+
+        private static IWorkbook CreateWorkbook()
+        {
+            IWorkbook workbook = new XSSFWorkbook();
+            ISheet sheetGD = workbook.CreateSheet(SheetNameEnum.GD.ToString());
+            ISheet sheetHF = workbook.CreateSheet(SheetNameEnum.HF.ToString());
+
+            // 创建样式对象
+            var style = workbook.CreateCellStyle();
+            // 设置单元格格式为数字格式，并保留两位小数
+            style.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
+
+            IRow rowGD = sheetGD.CreateRow(0);//添加第1行,注意行列的索引都是从0开始的
+
+            ICell cell1GD = rowGD.CreateCell(0);//给第1行添加第1个单元格
+            cell1GD.SetCellValue("分类指标");
+            ICell cell2GD = rowGD.CreateCell(1);
+            cell2GD.SetCellValue("指标分级");
+            ICell cell3GD = rowGD.CreateCell(2);
+            cell3GD.SetCellValue("四川盆地");
+            ICell cell4GD = rowGD.CreateCell(3);
+            cell4GD.SetCellValue("合计");
+
+
+            IRow rowHF = sheetHF.CreateRow(0);
+            ICell cell1HF = rowHF.CreateCell(0);
+            cell1HF.SetCellValue("分类指标");
+            ICell cell2HF = rowHF.CreateCell(1);
+            cell2HF.SetCellValue("指标分级");
+            ICell cell3HF = rowHF.CreateCell(2);
+            cell3HF.SetCellValue("四川盆地");
+            ICell cell4HF = rowHF.CreateCell(3);
+            cell4HF.SetCellValue("合计");
+
+            return workbook;
         }
 
     }

@@ -35,18 +35,31 @@ namespace GDDataStatistics
             dialog.Filter = "所有文件(*.*)|*.xlsx";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                this.fileName.Text = dialog.FileName;
-                ShowInfo($"选择文件{dialog.FileName}");
+                try
+                {
+                    this.fileName.Text = dialog.FileName;
+                    ShowInfo($"选择文件{dialog.FileName}");
+                    ShowInfo($"开始处理文件：{dialog.FileName}。");
 
-                Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(this.fileName.Text);
+                    this.BtnEnabled(false);
+                    Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(this.fileName.Text);
 
-                DataTable dataTable = DataMergeTool.ConvertData(dataDic);
+                    DataTable dataTable = DataMergeTool.ConvertData(dataDic);
 
-                dataGridView1.DataSource = dataTable;
+                    dataGridView1.DataSource = dataTable;
 
-                DataMergeTool.ExportData(dialog.FileName, dataDic);
-                MessageBox.Show("文件处理完成，请查看导出结果");
+                    string filepathAndName = DataMergeTool.ExportData(dialog.FileName, dataDic);
+
+                    ShowInfo($"文件处理完成，请查看导出结果。{filepathAndName}");
+                    MessageBox.Show($"文件处理完成，请查看导出结果:{filepathAndName}");
+                }catch(Exception ex)
+                {
+                    ShowInfo(ex.Message + ex.StackTrace);
+                    MessageBox.Show(ex.Message);
+                }
             }
+
+            this.BtnEnabled(true);
         }
 
         private void tabPage1_Click(object sender, EventArgs e)
@@ -78,6 +91,9 @@ namespace GDDataStatistics
                     if (filePaths != null && filePaths.Count > 0)
                     {
                         MessageBox.Show($"当前文件夹有:{filePaths.Count()}个文件准备开始处理");
+
+                        this.BtnEnabled(false);
+
                         List<Dictionary<string, Dictionary<string, double>>> dataList = new List<Dictionary<string, Dictionary<string, double>>>();
                         foreach (var filePath in filePaths)
                         {
@@ -102,7 +118,10 @@ namespace GDDataStatistics
 
                             dataGridView1.DataSource = dataTable;
 
-                            DataMergeTool.ExportData(this.fileName.Text+"\\计算结果"+ ".xlsx", dicData);
+                            string filePathAndName = $"{this.fileName.Text}\\计算结果.xlsx";
+                            DataMergeTool.ExportData(filePathAndName, dicData);
+
+                            ShowInfo("所有文件处理完成，请查看导出结果");
                         }
 
                         MessageBox.Show("所有文件处理完成，请查看导出结果");
@@ -111,15 +130,27 @@ namespace GDDataStatistics
                     {
                         MessageBox.Show("当前路径下没有可执行的Excel文件，请确认路径是否选错");
                     }
+
+                    this.BtnEnabled(true);
                 }
                 catch (Exception ex)
                 {
                     ShowInfo(ex.Message + ex.StackTrace);
                     MessageBox.Show(ex.Message);
+
+                    this.BtnEnabled(true);
                 }
             }
 
         }
+
+        private void BtnEnabled(bool enable)
+        {
+            this.button1.Enabled = enable;
+            this.button2.Enabled = enable;
+        }
+
+
 
         private void fileName_TextChanged(object sender, EventArgs e)
         {
