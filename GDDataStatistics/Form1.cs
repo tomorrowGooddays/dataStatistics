@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -37,6 +38,7 @@ namespace GDDataStatistics
             {
                 try
                 {
+                    this.label1.Text = "文件名称：";
                     this.fileName.Text = dialog.FileName;
                     ShowInfo($"选择文件{dialog.FileName}");
                     ShowInfo($"开始处理文件：{dialog.FileName}。");
@@ -80,6 +82,7 @@ namespace GDDataStatistics
             {
                 try
                 {
+                    this.label1.Text = "文件夹路径：";
                     this.fileName.Text = dialog.SelectedPath;
                     ShowInfo($"选择文件夹{this.fileName.Text}");
 
@@ -101,9 +104,11 @@ namespace GDDataStatistics
 
                             Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(filePath);
 
-                            if (dataDic != null)
+                            string dataDicString = JsonConvert.SerializeObject(dataDic);
+                            if (!string.IsNullOrWhiteSpace(dataDicString))
                             {
-                                dataList.Add(dataDic);
+                                Dictionary<string, Dictionary<string, double>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(dataDicString);
+                                dataList.Add(dataJson);
                             }
 
                             ShowInfo($"文件：{filePath}处理完成。");
@@ -148,6 +153,15 @@ namespace GDDataStatistics
         {
             this.button1.Enabled = enable;
             this.button2.Enabled = enable;
+
+            if (enable)
+            {
+                this.tabControl1.SelectedTab = this.tabPage1;
+            }
+            else
+            {
+                this.tabControl1.SelectedTab = this.tabPage2;
+            }
         }
 
 
@@ -166,6 +180,11 @@ namespace GDDataStatistics
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
         {
 
         }
