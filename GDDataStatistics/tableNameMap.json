@@ -1,0 +1,67 @@
+[
+  {
+    "CnName": "耕地耕地资源质量分类",
+    "ExcelInfo": [
+      {
+        "EnName": "FLGY",
+        "SheetName": "GD"
+      },
+      {
+        "EnName": "KCFLDY",
+        "SheetName": "HF"
+      }
+    ]
+  },
+  {
+    "CnName": "二级地类变化",
+    "ExcelInfo": [
+      {
+        "EnName": "EJDLBH",
+        "SheetName": "GD"
+      },
+      {
+        "EnName": "HFSXBH",
+        "SheetName": "HF"
+      }
+    ]
+  },
+  {
+    "CnName": "减少耕地资源质量",
+    "ExcelInfo": [
+      {
+        "EnName": "JSGD",
+        "SheetName": "GD"
+      },
+      {
+        "EnName": "JSHFDL",
+        "SheetName": "HF"
+      }
+    ]
+  },
+  {
+    "CnName": "新增耕地资源质量分类",
+    "ExcelInfo": [
+      {
+        "EnName": "XZDG",
+        "SheetName": "GD"
+      },
+      {
+        "EnName": "XZHFDL",
+        "SheetName": "HF"
+      }
+    ]
+  },
+  {
+    "CnName": "质量建设耕地资源质量分类",
+    "ExcelInfo": [
+      {
+        "EnName": "ZLJS_GD",
+        "SheetName": "GD"
+      },
+      {
+        "EnName": "ZLJS_HFDL",
+        "SheetName": "HF"
+      }
+    ]
+  }
+]

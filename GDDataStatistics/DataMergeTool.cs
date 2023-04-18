@@ -1,3 +1,5 @@
+using GDDataStatistics.Helper;
+using GDDataStatistics.Model;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using NPOI.XSSF.UserModel;
@@ -123,7 +125,7 @@ namespace GDDataStatistics
             var style = workbook.CreateCellStyle();
             // 设置单元格格式为数字格式，并保留两位小数
             style.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
-           
+
             int rowNumber = 1;
             for (int i = 0; i < dicData.Count; i++)
             {
@@ -215,5 +217,119 @@ namespace GDDataStatistics
             return workbook;
         }
 
+        public static void ExportDataByName(string filePath, List<ExcelDataInfo> dataList)
+        {
+            string tableNameMapJsonFileName = "tableNameMap.json";
+            List<TableNameMap> tableNameMaps = FileHelper.GetJsonFileFromEmbedResource<List<TableNameMap>>(tableNameMapJsonFileName);
+
+            if (tableNameMaps == null || tableNameMaps.Count == 0)
+            {
+                throw new Exception("tableNameMap.json文件数据缺失");
+            }
+
+            foreach (var tableNameMap in tableNameMaps)
+            {
+                string excelName = tableNameMap.CnName;
+
+                var excelInfo = tableNameMap.ExcelInfo;
+
+                List<string> enNameList = tableNameMap.ExcelInfo.Select(p => p.EnName).ToList();
+
+                List<ExcelDataInfo> dataInfos = dataList.Where(p => enNameList.Any().Equals(p.FileName)).ToList();
+
+                if (dataInfos != null && dataInfos.Count > 0)
+                {
+                    DoExport(filePath, tableNameMap, dataInfos);
+                }
+
+            }
+
+        }
+
+        private static void DoExport(string filePath, TableNameMap tableNameMap, List<ExcelDataInfo> dataInfos)
+        {
+            string filePathAndName = $"{filePath}\\{tableNameMap.CnName}.xlsx";
+            //创建好表头
+            IWorkbook workbook = new XSSFWorkbook();
+
+            // 创建样式对象
+            var style = workbook.CreateCellStyle();
+            // 设置单元格格式为数字格式，并保留两位小数
+            style.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
+
+            for (int s = 0; s < dataInfos.Count; s++)
+            {
+                string sheetName = tableNameMap.ExcelInfo.FirstOrDefault(p => string.Equals(p.EnName, dataInfos[i].FileName, StringComparison.OrdinalIgnoreCase))?.SheetName;
+                if (string.IsNullOrWhiteSpace(sheetName)) sheetName = SheetNameEnum.GD.ToString();
+
+                ISheet sheet = workbook.CreateSheet(sheetName);
+
+                IRow row = sheet.CreateRow(s);//添加第1行,注意行列的索引都是从0开始的
+
+                ICell cell1 = row.CreateCell(0);//给第1行添加第1个单元格
+                cell1.SetCellValue("分类指标");
+                ICell cell2 = row.CreateCell(1);
+                cell2.SetCellValue("指标分级");
+                ICell cell3 = row.CreateCell(2);
+                cell3.SetCellValue("四川盆地");
+                ICell cell4 = row.CreateCell(3);
+                cell4.SetCellValue("合计");
+
+                Dictionary<string, Dictionary<string, double>> dicData = dataInfos[s].DataList;
+
+                int rowNumber = 1;
+                for (int i = 0; i < dicData.Count; i++)
+                {
+                    var item = dicData.ElementAt(i);
+
+                    string titleName = item.Key;
+                    Dictionary<string, double> itemValue = item.Value;
+
+                    // 使用LINQ按照Key排序
+                    var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+
+                    for (int j = 0; j < sortedDict.ToList().Count(); j++)
+                    {
+                        var itemJ = sortedDict.ElementAt(j);
+
+                        IRow rowGDSub = sheet.CreateRow(rowNumber);
+
+                        ICell cell1J = rowGDSub.CreateCell(0);
+                        if (j == 0)
+                        {
+                            cell1J.SetCellValue(titleName);
+                        }
+                        else
+                        {
+                            cell1J.SetCellValue("");
+                        }
+                        ICell cell2J = rowGDSub.CreateCell(1);
+                        cell2J.SetCellValue(itemJ.Key);
+
+                        ICell cell3J = rowGDSub.CreateCell(2);
+                        cell3J.SetCellValue(itemJ.Value);
+                        cell3J.CellStyle = style;
+
+                        ICell cell4J = rowGDSub.CreateCell(3);
+                        cell4J.SetCellValue(itemJ.Value);
+                        cell4J.CellStyle = style;
+
+                        rowNumber++;
+                    }
+                }
+
+            }
+
+            if (File.Exists(filePathAndName))
+            {
+                File.Delete(filePathAndName);
+            }
+
+            using (FileStream file = new FileStream(filePathAndName, FileMode.Create))
+            {
+                workbook.Write(file);
+            }
+
+        }
     }
 }

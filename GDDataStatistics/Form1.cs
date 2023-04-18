@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,7 +55,8 @@ namespace GDDataStatistics
 
                     ShowInfo($"文件处理完成，请查看导出结果。{filepathAndName}");
                     MessageBox.Show($"文件处理完成，请查看导出结果:{filepathAndName}");
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     ShowInfo(ex.Message + ex.StackTrace);
                     MessageBox.Show(ex.Message);
@@ -97,10 +99,12 @@ namespace GDDataStatistics
 
                         this.BtnEnabled(false);
 
-                        List<Dictionary<string, Dictionary<string, double>>> dataList = new List<Dictionary<string, Dictionary<string, double>>>();
+                        List<ExcelDataInfo> dataList = new List<ExcelDataInfo>();
                         foreach (var filePath in filePaths)
                         {
                             ShowInfo($"开始处理文件：{filePath}。");
+
+                            string fileName = Path.GetFileNameWithoutExtension(filePath);
 
                             Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(filePath);
 
@@ -108,7 +112,14 @@ namespace GDDataStatistics
                             if (!string.IsNullOrWhiteSpace(dataDicString))
                             {
                                 Dictionary<string, Dictionary<string, double>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(dataDicString);
-                                dataList.Add(dataJson);
+
+                                ExcelDataInfo dataInfo = new ExcelDataInfo()
+                                {
+                                    FileName = fileName,
+                                    DataList = dataJson
+                                };
+
+                                dataList.Add(dataInfo);
                             }
 
                             ShowInfo($"文件：{filePath}处理完成。");
@@ -116,15 +127,18 @@ namespace GDDataStatistics
 
                         if (dataList != null && dataList.Count > 0)
                         {
-                            ShowInfo("========开始合并数据==========");
-                            var dicData = DataMergeTool.MergeData(dataList);
+                            ShowInfo("========开始导出数据==========");
+
+                            DataMergeTool.ExportDataByName(this.fileName.Text, dataList);
+
+                            //var dicData = DataMergeTool.MergeData(dataList);
                             //把dataTable显示在页面
-                            DataTable dataTable = DataMergeTool.ConvertData(dicData);
+                            //DataTable dataTable = DataMergeTool.ConvertData(dicData);
 
-                            dataGridView1.DataSource = dataTable;
+                            //dataGridView1.DataSource = dataTable;
 
-                            string filePathAndName = $"{this.fileName.Text}\\计算结果.xlsx";
-                            DataMergeTool.ExportData(filePathAndName, dicData);
+                            //string filePathAndName = $"{this.fileName.Text}\\计算结果.xlsx";
+                            //DataMergeTool.ExportData(filePathAndName, dicData);
 
                             ShowInfo("所有文件处理完成，请查看导出结果");
                         }

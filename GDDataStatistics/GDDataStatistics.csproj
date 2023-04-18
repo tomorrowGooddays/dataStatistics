@@ -68,16 +68,20 @@
     <Compile Include="DataConvertTool.cs" />
     <Compile Include="DataMergeTool.cs" />
     <Compile Include="ExcelDataFactory.cs" />
+    <Compile Include="ExcelDataInfo.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Model\ExcelInfo.cs" />
+    <Compile Include="Model\TableNameMap.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SheetNameEnum.cs" />
-    <Compile Include="TitleNameEnum.cs" />
+    <Compile Include="Enum\SheetNameEnum.cs" />
+    <Compile Include="Enum\TitleNameEnum.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -100,6 +104,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="tableNameMap.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
