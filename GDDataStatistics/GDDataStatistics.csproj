@@ -67,6 +67,7 @@
     <Compile Include="Constant.cs" />
     <Compile Include="DataConvertTool.cs" />
     <Compile Include="DataMergeTool.cs" />
+    <Compile Include="Enum\DistrictDataInfo.cs" />
     <Compile Include="ExcelDataFactory.cs" />
     <Compile Include="ExcelDataInfo.cs" />
     <Compile Include="Form1.cs">

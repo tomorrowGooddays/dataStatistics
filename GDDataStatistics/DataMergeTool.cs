@@ -235,7 +235,7 @@ namespace GDDataStatistics
 
                 List<string> enNameList = tableNameMap.ExcelInfo.Select(p => p.EnName).ToList();
 
-                List<ExcelDataInfo> dataInfos = dataList.Where(p => enNameList.Any().Equals(p.FileName)).ToList();
+                List<ExcelDataInfo> dataInfos = dataList.Where(x => enNameList.Any(y => string.Equals(x.FileName, y, StringComparison.OrdinalIgnoreCase))).ToList();
 
                 if (dataInfos != null && dataInfos.Count > 0)
                 {
@@ -248,7 +248,13 @@ namespace GDDataStatistics
 
         private static void DoExport(string filePath, TableNameMap tableNameMap, List<ExcelDataInfo> dataInfos)
         {
-            string filePathAndName = $"{filePath}\\{tableNameMap.CnName}.xlsx";
+            string fileDirectory = $"{filePath}\\成果输出";
+            if (!Directory.Exists(fileDirectory))
+            {
+                Directory.CreateDirectory(fileDirectory);
+            }
+
+            string filePathAndName = $"{fileDirectory}\\{tableNameMap.CnName}.xlsx";
             //创建好表头
             IWorkbook workbook = new XSSFWorkbook();
 
@@ -259,12 +265,12 @@ namespace GDDataStatistics
 
             for (int s = 0; s < dataInfos.Count; s++)
             {
-                string sheetName = tableNameMap.ExcelInfo.FirstOrDefault(p => string.Equals(p.EnName, dataInfos[i].FileName, StringComparison.OrdinalIgnoreCase))?.SheetName;
+                string sheetName = tableNameMap.ExcelInfo.FirstOrDefault(p => string.Equals(p.EnName, dataInfos[s].FileName, StringComparison.OrdinalIgnoreCase))?.SheetName;
                 if (string.IsNullOrWhiteSpace(sheetName)) sheetName = SheetNameEnum.GD.ToString();
 
                 ISheet sheet = workbook.CreateSheet(sheetName);
 
-                IRow row = sheet.CreateRow(s);//添加第1行,注意行列的索引都是从0开始的
+                IRow row = sheet.CreateRow(0);//添加第1行,注意行列的索引都是从0开始的
 
                 ICell cell1 = row.CreateCell(0);//给第1行添加第1个单元格
                 cell1.SetCellValue("分类指标");

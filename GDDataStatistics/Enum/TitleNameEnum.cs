@@ -22,6 +22,7 @@ namespace GDDataStatistics
         BHQTRZJS_1 = 61,
         BHQSZJB = 63,
         BHQGDEJDLJ = 65,
-
+        行政区代码=66,
+        行政区名称=67
     }
 }
