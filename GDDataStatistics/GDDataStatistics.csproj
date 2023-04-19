@@ -67,9 +67,9 @@
     <Compile Include="Constant.cs" />
     <Compile Include="DataConvertTool.cs" />
     <Compile Include="DataMergeTool.cs" />
-    <Compile Include="Enum\DistrictDataInfo.cs" />
     <Compile Include="ExcelDataFactory.cs" />
-    <Compile Include="ExcelDataInfo.cs" />
+    <Compile Include="Model\DistrictDataInfo.cs" />
+    <Compile Include="Model\ExcelDataInfo.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,6 +77,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Model\ExcelDistrictDataInfo.cs" />
     <Compile Include="Model\ExcelInfo.cs" />
     <Compile Include="Model\TableNameMap.cs" />
     <Compile Include="Program.cs" />

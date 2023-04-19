@@ -110,7 +110,7 @@ namespace GDDataStatistics
             return dt;
         }
 
-
+        //导出数据，全量单个文件
         public static string ExportData(string filePathAndName, Dictionary<string, Dictionary<string, double>> dicData)
         {
             if (string.IsNullOrEmpty(filePathAndName)) return "";
@@ -217,6 +217,7 @@ namespace GDDataStatistics
             return workbook;
         }
 
+        //导出数据，全量多个文件
         public static void ExportDataByName(string filePath, List<ExcelDataInfo> dataList)
         {
             string tableNameMapJsonFileName = "tableNameMap.json";
