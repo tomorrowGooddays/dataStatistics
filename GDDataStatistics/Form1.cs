@@ -1,3 +1,4 @@
+using GDDataStatistics.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,9 @@ namespace GDDataStatistics
                     ShowInfo($"开始处理文件：{dialog.FileName}。");
 
                     this.BtnEnabled(false);
+                    ExcelDataFactory.ReadTotalDistrictCodeName(this.fileName.Text);
+                    var dic = ExcelDataFactory.LoadExcelDataDistrict(this.fileName.Text);
+
                     Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(this.fileName.Text);
 
                     DataTable dataTable = DataMergeTool.ConvertData(dataDic);
@@ -121,13 +125,11 @@ namespace GDDataStatistics
 
                                 dataList.Add(dataInfo);
                             }
-
-                            ShowInfo($"文件：{filePath}处理完成。");
                         }
 
                         if (dataList != null && dataList.Count > 0)
                         {
-                            ShowInfo("========开始导出数据==========");
+                            ShowInfo("========开始导出全量统计数据==========");
 
                             DataMergeTool.ExportDataByName(this.fileName.Text, dataList);
 
@@ -140,15 +142,50 @@ namespace GDDataStatistics
                             //string filePathAndName = $"{this.fileName.Text}\\计算结果.xlsx";
                             //DataMergeTool.ExportData(filePathAndName, dicData);
 
-                            ShowInfo("所有文件处理完成，请查看导出结果");
+                            ShowInfo("全量统计数据处理完成");
                         }
 
-                        MessageBox.Show("所有文件处理完成，请查看导出结果");
+                        ShowInfo("开始处理分区数据统计");
+
+                        List<ExcelDataDistrictInfo> dataDistrcitList = new List<ExcelDataDistrictInfo>();
+                        foreach (var filePath in filePaths)
+                        {
+                            ShowInfo($"开始处理文件：{filePath}。");
+
+                            string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+                            ExcelDataFactory.ReadTotalDistrictCodeName(this.fileName.Text);
+                            Dictionary<string,Dictionary<string, Dictionary<string, double>>> dataDic = ExcelDataFactory.LoadExcelDataDistrict(filePath);
+
+                            string dataDicString = JsonConvert.SerializeObject(dataDic);
+                            if (!string.IsNullOrWhiteSpace(dataDicString))
+                            {
+                                Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, double>>>>(dataDicString);
+
+                                ExcelDataDistrictInfo dataInfo = new ExcelDataDistrictInfo()
+                                {
+                                    FileName = fileName,
+                                    DataList = dataJson
+                                };
+
+                                dataDistrcitList.Add(dataInfo);
+                            }
+                        }
+
+                        if (dataDistrcitList != null && dataDistrcitList.Count > 0)
+                        {
+                            ShowInfo("========开始导出分区统计数据==========");
+
+                            ShowInfo("分区统计数据处理完成");
+                        }
+
                     }
                     else
                     {
                         MessageBox.Show("当前路径下没有可执行的Excel文件，请确认路径是否选错");
                     }
+
+                    MessageBox.Show("所有文件处理完成，请查看导出结果");
 
                     this.BtnEnabled(true);
                 }
