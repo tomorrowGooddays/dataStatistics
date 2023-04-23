@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Metadata;
 
 namespace GDDataStatistics
 {
@@ -326,6 +327,180 @@ namespace GDDataStatistics
                 }
 
             }
+
+            if (File.Exists(filePathAndName))
+            {
+                File.Delete(filePathAndName);
+            }
+
+            using (FileStream file = new FileStream(filePathAndName, FileMode.Create))
+            {
+                workbook.Write(file);
+            }
+
+        }
+
+        public static void ExportDataByNameWithDistrcit(string filePath, List<ExcelDataDistrictInfo> dataDistrictInfos)
+        {
+            string tableNameMapJsonFileName = "tableNameMap.json";
+            List<TableNameMap> tableNameMaps = FileHelper.GetJsonFileFromEmbedResource<List<TableNameMap>>(tableNameMapJsonFileName);
+
+            if (tableNameMaps == null || tableNameMaps.Count == 0)
+            {
+                throw new Exception("tableNameMap.json文件数据缺失");
+            }
+
+            foreach (var tableNameMap in tableNameMaps)
+            {
+                string excelName = tableNameMap.CnName;
+
+                var excelInfo = tableNameMap.ExcelInfo;
+
+                List<string> enNameList = tableNameMap.ExcelInfo.Select(p => p.EnName).ToList();
+
+                List<ExcelDataDistrictInfo> dataInfos = dataDistrictInfos.Where(x => enNameList.Any(y => string.Equals(x.FileName, y, StringComparison.OrdinalIgnoreCase))).ToList();
+
+                if (dataInfos != null && dataInfos.Count > 0)
+                {
+                    DoExportByDistrict(filePath, tableNameMap, dataInfos);
+                }
+            }
+        }
+
+        private static void DoExportByDistrict(string filePath, TableNameMap tableNameMap, List<ExcelDataDistrictInfo> dataDistrictInfos)
+        {
+            string fileDirectory = $"{filePath}\\成果输出";
+            if (!Directory.Exists(fileDirectory))
+            {
+                Directory.CreateDirectory(fileDirectory);
+            }
+
+            string filePathAndName = $"{fileDirectory}\\{tableNameMap.CnName}-分行政区.xlsx";
+            //创建好表头
+            IWorkbook workbook = new XSSFWorkbook();
+
+            // 创建样式对象
+            var style = workbook.CreateCellStyle();
+            // 设置单元格格式为数字格式，并保留两位小数
+            style.DataFormat = workbook.CreateDataFormat().GetFormat("0.00");
+
+            //循环创建Sheet
+            for (int s = 0; s < dataDistrictInfos.Count; s++)
+            {
+                string sheetName = tableNameMap.ExcelInfo.FirstOrDefault(p => string.Equals(p.EnName, dataDistrictInfos[s].FileName, StringComparison.OrdinalIgnoreCase))?.SheetName;
+                if (string.IsNullOrWhiteSpace(sheetName)) sheetName = SheetNameEnum.GD.ToString();
+
+                ISheet sheet = workbook.CreateSheet(sheetName);
+
+                IRow row0 = sheet.CreateRow(0);//添加第1行,注意行列的索引都是从0开始的
+
+                ICell cell01 = row0.CreateCell(0);//给第1行添加第1个单元格
+                cell01.SetCellValue("行政代码");
+                ICell cell02 = row0.CreateCell(1);
+                cell02.SetCellValue("行政单位");
+                ICell cell03 = row0.CreateCell(2);
+                cell03.SetCellValue("合计");
+
+                IRow row1 = sheet.CreateRow(1);
+                ICell cell11 = row1.CreateCell(0);
+                cell11.SetCellValue("行政代码");
+                ICell cell12 = row1.CreateCell(1);
+                cell12.SetCellValue("行政单位");
+                ICell cell13 = row1.CreateCell(2);
+                cell13.SetCellValue("合计");
+
+                Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataInfoDic = dataDistrictInfos[s].DataList;
+                Dictionary<string, string> districtCodeAndName = dataDistrictInfos[s].DistrictNameAndCodeMap;
+                Dictionary<string, double> districtAreaTotal = dataDistrictInfos[s].DistrictTotalAmount;
+
+
+                for (int q = 0; q < dataInfoDic.Count; q++)
+                {
+                    if (q == 0)
+                    {
+                        Dictionary<string, Dictionary<string, double>> dataListItem = dataInfoDic.FirstOrDefault().Value;
+
+                        int cellNumber = 3;
+
+                        for (int i = 0; i < dataListItem.Count; i++)
+                        {
+                            var item = dataListItem.ElementAt(i);
+
+                            string tileName = item.Key;
+                            Dictionary<string, double> itemValue = item.Value;
+
+                            // 使用LINQ按照Key排序
+                            var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+
+                            int totalCount = sortedDict.Count();
+
+                            for (int j = 0; j < totalCount; j++)
+                            {
+                                ICell cell1J = row0.CreateCell(cellNumber + j);
+                                ICell cell2J = row1.CreateCell(cellNumber + j);
+                                if (j == 0)
+                                {
+                                    cell1J.SetCellValue(tileName);
+                                }
+                                else
+                                {
+                                    cell1J.SetCellValue("");
+                                }
+
+                                cell2J.SetCellValue(sortedDict.ElementAt(j).Key);
+                            }
+
+                            cellNumber += totalCount;
+                        }
+                    }
+
+                    IRow rowq = sheet.CreateRow(q + 2);
+                    ICell cellq0 = rowq.CreateCell(0);
+                    ICell cellq1 = rowq.CreateCell(1);
+                    ICell cellq2 = rowq.CreateCell(2);
+                    cellq2.CellStyle = style;
+
+                    var elmentDic = dataInfoDic.ElementAt(q);
+
+                    string districtCode = elmentDic.Key;
+                    string districtName = districtCodeAndName[districtCode];
+                    double areaTotal = districtAreaTotal[districtCode];
+
+                    cellq0.SetCellValue(districtCode);
+                    cellq1.SetCellValue(districtName);
+                    cellq2.SetCellValue(areaTotal);
+
+
+                    Dictionary<string, Dictionary<string, double>> dataListItemQ = dataInfoDic[districtCode];
+
+                    int JcellNumber = 3;
+
+                    for (int i = 0; i < dataListItemQ.Count; i++)
+                    {
+                        var item = dataListItemQ.ElementAt(i);
+
+                        string tileName = item.Key;
+                        Dictionary<string, double> itemValue = item.Value;
+
+                        // 使用LINQ按照Key排序
+                        var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+
+                        int JtotalCount = sortedDict.Count();
+
+                        for (int j = 0; j < JtotalCount; j++)
+                        {
+                            string name = row1.GetCell(JcellNumber + j).StringCellValue;
+                            double value = itemValue[name];
+
+                            ICell cell1J = rowq.CreateCell(JcellNumber + j);
+                            cell1J.SetCellValue(value);
+                        }
+
+                        JcellNumber += JtotalCount;
+                    }
+                }
+            }
+
 
             if (File.Exists(filePathAndName))
             {

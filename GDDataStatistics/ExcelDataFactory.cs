@@ -141,7 +141,7 @@ namespace GDDataStatistics
         /// 通过地址加载excel数据,分行政区统计
         /// </summary>
         /// <param name="filePath"></param>
-        public static Dictionary<string, Dictionary<string, Dictionary<string, double>>> LoadExcelDataDistrict(string filePath)
+        public static Tuple<Dictionary<string, Dictionary<string, Dictionary<string, double>>>, Dictionary<string, string>, Dictionary<string, double>> LoadExcelDataDistrict(string filePath)
         {
 
             using (var file = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -198,13 +198,12 @@ namespace GDDataStatistics
                                 if (titleName.Equals(TitleNameEnum.TBDLMJ.ToString()))
                                 {
                                     TBDLMJValue = double.Parse(cellValue);
-                                    
+
                                 }
                                 else
                                 {
                                     //行政区代码和名称这两列，放在最前面
-                                    if (string.Equals(titleName, TitleNameEnum.行政区代码.ToString(), StringComparison.OrdinalIgnoreCase)
-                                        || string.Equals(titleName, TitleNameEnum.行政区名称.ToString(), StringComparison.OrdinalIgnoreCase))
+                                    if (string.Equals(titleName, TitleNameEnum.行政区代码.ToString(), StringComparison.OrdinalIgnoreCase))
                                     {
                                         if (DistrictTotalAmount.ContainsKey(cellValue))
                                         {
@@ -214,6 +213,10 @@ namespace GDDataStatistics
                                         {
                                             DistrictTotalAmount[cellValue] = TBDLMJValue;
                                         }
+                                    }
+                                    else if (string.Equals(titleName, TitleNameEnum.行政区名称.ToString(), StringComparison.OrdinalIgnoreCase))
+                                    {
+
                                     }
                                     else
                                     {
@@ -251,7 +254,7 @@ namespace GDDataStatistics
                 }
             }
 
-            return totalDataDistrictDic;
+            return Tuple.Create(totalDataDistrictDic, DistrictCodeName, DistrictTotalAmount);
         }
 
 
@@ -369,6 +372,7 @@ namespace GDDataStatistics
 
             DistrictCodeName.Clear();
             totalDataDistrictDic.Clear();
+            DistrictTotalAmount.Clear();
 
             Array names = Enum.GetNames(typeof(TitleNameEnum));
             foreach (var name in names)

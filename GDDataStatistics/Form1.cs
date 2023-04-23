@@ -1,5 +1,6 @@
 using GDDataStatistics.Model;
 using Newtonsoft.Json;
+using NPOI.OpenXmlFormats.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -46,8 +47,8 @@ namespace GDDataStatistics
                     ShowInfo($"开始处理文件：{dialog.FileName}。");
 
                     this.BtnEnabled(false);
-                    ExcelDataFactory.ReadTotalDistrictCodeName(this.fileName.Text);
-                    var dic = ExcelDataFactory.LoadExcelDataDistrict(this.fileName.Text);
+                    //ExcelDataFactory.ReadTotalDistrictCodeName(this.fileName.Text);
+                    //var dic = ExcelDataFactory.LoadExcelDataDistrict(this.fileName.Text);
 
                     Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(this.fileName.Text);
 
@@ -103,82 +104,14 @@ namespace GDDataStatistics
 
                         this.BtnEnabled(false);
 
-                        List<ExcelDataInfo> dataList = new List<ExcelDataInfo>();
-                        foreach (var filePath in filePaths)
-                        {
-                            ShowInfo($"开始处理文件：{filePath}。");
+                        #region 全量统计
+                        //DataStatisticsByTotal(filePaths);
+                        #endregion
 
-                            string fileName = Path.GetFileNameWithoutExtension(filePath);
+                        #region 按区分批统计
 
-                            Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(filePath);
-
-                            string dataDicString = JsonConvert.SerializeObject(dataDic);
-                            if (!string.IsNullOrWhiteSpace(dataDicString))
-                            {
-                                Dictionary<string, Dictionary<string, double>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(dataDicString);
-
-                                ExcelDataInfo dataInfo = new ExcelDataInfo()
-                                {
-                                    FileName = fileName,
-                                    DataList = dataJson
-                                };
-
-                                dataList.Add(dataInfo);
-                            }
-                        }
-
-                        if (dataList != null && dataList.Count > 0)
-                        {
-                            ShowInfo("========开始导出全量统计数据==========");
-
-                            DataMergeTool.ExportDataByName(this.fileName.Text, dataList);
-
-                            //var dicData = DataMergeTool.MergeData(dataList);
-                            //把dataTable显示在页面
-                            //DataTable dataTable = DataMergeTool.ConvertData(dicData);
-
-                            //dataGridView1.DataSource = dataTable;
-
-                            //string filePathAndName = $"{this.fileName.Text}\\计算结果.xlsx";
-                            //DataMergeTool.ExportData(filePathAndName, dicData);
-
-                            ShowInfo("全量统计数据处理完成");
-                        }
-
-                        ShowInfo("开始处理分区数据统计");
-
-                        List<ExcelDataDistrictInfo> dataDistrcitList = new List<ExcelDataDistrictInfo>();
-                        foreach (var filePath in filePaths)
-                        {
-                            ShowInfo($"开始处理文件：{filePath}。");
-
-                            string fileName = Path.GetFileNameWithoutExtension(filePath);
-
-                            ExcelDataFactory.ReadTotalDistrictCodeName(this.fileName.Text);
-                            Dictionary<string,Dictionary<string, Dictionary<string, double>>> dataDic = ExcelDataFactory.LoadExcelDataDistrict(filePath);
-
-                            string dataDicString = JsonConvert.SerializeObject(dataDic);
-                            if (!string.IsNullOrWhiteSpace(dataDicString))
-                            {
-                                Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, double>>>>(dataDicString);
-
-                                ExcelDataDistrictInfo dataInfo = new ExcelDataDistrictInfo()
-                                {
-                                    FileName = fileName,
-                                    DataList = dataJson
-                                };
-
-                                dataDistrcitList.Add(dataInfo);
-                            }
-                        }
-
-                        if (dataDistrcitList != null && dataDistrcitList.Count > 0)
-                        {
-                            ShowInfo("========开始导出分区统计数据==========");
-
-                            ShowInfo("分区统计数据处理完成");
-                        }
-
+                        DataStatisticsByDistrict(filePaths);
+                        #endregion
                     }
                     else
                     {
@@ -198,6 +131,101 @@ namespace GDDataStatistics
                 }
             }
 
+        }
+
+        private void DataStatisticsByTotal(List<string> filePaths)
+        {
+            List<ExcelDataInfo> dataList = new List<ExcelDataInfo>();
+            foreach (var filePath in filePaths)
+            {
+                ShowInfo($"开始处理文件：{filePath}。");
+
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+                Dictionary<string, Dictionary<string, double>> dataDic = ExcelDataFactory.LoadExcelData(filePath);
+
+                string dataDicString = JsonConvert.SerializeObject(dataDic);
+                if (!string.IsNullOrWhiteSpace(dataDicString))
+                {
+                    Dictionary<string, Dictionary<string, double>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>(dataDicString);
+
+                    ExcelDataInfo dataInfo = new ExcelDataInfo()
+                    {
+                        FileName = fileName,
+                        DataList = dataJson
+                    };
+
+                    dataList.Add(dataInfo);
+                }
+            }
+
+            if (dataList != null && dataList.Count > 0)
+            {
+                ShowInfo("========开始导出全量统计数据==========");
+
+                DataMergeTool.ExportDataByName(this.fileName.Text, dataList);
+
+                //var dicData = DataMergeTool.MergeData(dataList);
+                //把dataTable显示在页面
+                //DataTable dataTable = DataMergeTool.ConvertData(dicData);
+
+                //dataGridView1.DataSource = dataTable;
+
+                //string filePathAndName = $"{this.fileName.Text}\\计算结果.xlsx";
+                //DataMergeTool.ExportData(filePathAndName, dicData);
+
+                ShowInfo("全量统计数据处理完成");
+            }
+        }
+
+        private void DataStatisticsByDistrict(List<string> filePaths)
+        {
+            ShowInfo("开始处理分区数据统计");
+
+            List<ExcelDataDistrictInfo> dataDistrcitList = new List<ExcelDataDistrictInfo>();
+            foreach (var filePath in filePaths)
+            {
+                ShowInfo($"开始处理文件：{filePath}。");
+
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+                ExcelDataFactory.ReadTotalDistrictCodeName(filePath);
+
+                var result = ExcelDataFactory.LoadExcelDataDistrict(filePath);
+                Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataDic = result.Item1;
+                Dictionary<string, string> dataDic2 = result.Item2;
+                Dictionary<string, double> dataDic3 = result.Item3;
+
+                string dataDicString2 = JsonConvert.SerializeObject(dataDic2);
+                string dataDicString3 = JsonConvert.SerializeObject(dataDic3);
+                string dataDicString = JsonConvert.SerializeObject(dataDic);
+                if (!string.IsNullOrWhiteSpace(dataDicString))
+                {
+                    Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataJson = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, Dictionary<string, double>>>>(dataDicString);
+
+                    Dictionary<string, string> dicJson2 = JsonConvert.DeserializeObject<Dictionary<string, string>>(dataDicString2);
+                    Dictionary<string, double> dicJson3 = JsonConvert.DeserializeObject<Dictionary<string, double>>(dataDicString3);
+
+                    ExcelDataDistrictInfo dataInfo = new ExcelDataDistrictInfo()
+                    {
+                        FileName = fileName,
+                        DataList = dataJson,
+                        DistrictNameAndCodeMap = dicJson2,
+                        DistrictTotalAmount = dicJson3
+                    };
+
+                    dataDistrcitList.Add(dataInfo);
+                }
+            }
+
+            if (dataDistrcitList != null && dataDistrcitList.Count > 0)
+            {
+                ShowInfo("========开始导出分区统计数据==========");
+
+                DataMergeTool.ExportDataByNameWithDistrcit(this.fileName.Text, dataDistrcitList);
+
+                ShowInfo("分区统计数据处理完成");
+            }
         }
 
         private void BtnEnabled(bool enable)
