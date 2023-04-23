@@ -438,14 +438,15 @@ namespace GDDataStatistics
                             {
                                 ICell cell1J = row0.CreateCell(cellNumber + j);
                                 ICell cell2J = row1.CreateCell(cellNumber + j);
-                                if (j == 0)
-                                {
-                                    cell1J.SetCellValue(tileName);
-                                }
-                                else
-                                {
-                                    cell1J.SetCellValue("");
-                                }
+                                cell1J.SetCellValue(tileName);
+                                //if (j == 0)
+                                //{
+                                //    cell1J.SetCellValue(tileName);
+                                //}
+                                //else
+                                //{
+                                //    cell1J.SetCellValue("");
+                                //}
 
                                 cell2J.SetCellValue(sortedDict.ElementAt(j).Key);
                             }
@@ -454,50 +455,74 @@ namespace GDDataStatistics
                         }
                     }
 
-                    IRow rowq = sheet.CreateRow(q + 2);
-                    ICell cellq0 = rowq.CreateCell(0);
-                    ICell cellq1 = rowq.CreateCell(1);
-                    ICell cellq2 = rowq.CreateCell(2);
-                    cellq2.CellStyle = style;
+                    //IRow rowq = sheet.CreateRow(q + 2);
+                    //ICell cellq0 = rowq.CreateCell(0);
+                    //ICell cellq1 = rowq.CreateCell(1);
+                    //ICell cellq2 = rowq.CreateCell(2);
+                    //cellq2.CellStyle = style;
 
-                    var elmentDic = dataInfoDic.ElementAt(q);
+                    //var elmentDic = dataInfoDic.ElementAt(q);
 
-                    string districtCode = elmentDic.Key;
-                    string districtName = districtCodeAndName[districtCode];
-                    double areaTotal = districtAreaTotal[districtCode];
+                    //string districtCode = elmentDic.Key;
+                    //string districtName = districtCodeAndName[districtCode];
+                    //double areaTotal = districtAreaTotal[districtCode];
 
-                    cellq0.SetCellValue(districtCode);
-                    cellq1.SetCellValue(districtName);
-                    cellq2.SetCellValue(areaTotal);
+                    //cellq0.SetCellValue(districtCode);
+                    //cellq1.SetCellValue(districtName);
+                    //cellq2.SetCellValue(areaTotal);
 
+                    //Dictionary<string, Dictionary<string, double>> dataListItemQ = dataInfoDic[districtCode];
 
-                    Dictionary<string, Dictionary<string, double>> dataListItemQ = dataInfoDic[districtCode];
+                    //int JcellNumber = 3;
 
-                    int JcellNumber = 3;
+                    //for (int i = 0; i < dataListItemQ.Count; i++)//每个区有XX多列
+                    //{
+                    //    string cellName = row0.GetCell(JcellNumber).StringCellValue;
+                    //    if (!string.IsNullOrEmpty(cellName))
+                    //    {
+                    //        Dictionary<string, double> itemValue = dataListItemQ[cellName];
 
-                    for (int i = 0; i < dataListItemQ.Count; i++)
-                    {
-                        var item = dataListItemQ.ElementAt(i);
+                    //        // 使用LINQ按照Key排序
+                    //        var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
 
-                        string tileName = item.Key;
-                        Dictionary<string, double> itemValue = item.Value;
+                    //        int JtotalCount = sortedDict.Count();
 
-                        // 使用LINQ按照Key排序
-                        var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+                    //        for (int j = 0; j < JtotalCount; j++)
+                    //        {
+                    //            string name = row1.GetCell(JcellNumber + j).StringCellValue;
+                    //            double value = itemValue[name];
 
-                        int JtotalCount = sortedDict.Count();
+                    //            ICell cell1J = rowq.CreateCell(JcellNumber + j);
+                    //            cell1J.SetCellValue(value);
+                    //        }
 
-                        for (int j = 0; j < JtotalCount; j++)
-                        {
-                            string name = row1.GetCell(JcellNumber + j).StringCellValue;
-                            double value = itemValue[name];
+                    //        JcellNumber += JtotalCount;
+                    //    }
+                    //}
 
-                            ICell cell1J = rowq.CreateCell(JcellNumber + j);
-                            cell1J.SetCellValue(value);
-                        }
+                    //for (int i = 0; i < dataListItemQ.Count; i++)
+                    //{
+                    //    var item = dataListItemQ.ElementAt(i);
 
-                        JcellNumber += JtotalCount;
-                    }
+                    //    string tileName = item.Key;
+                    //    Dictionary<string, double> itemValue = item.Value;
+
+                    //    // 使用LINQ按照Key排序
+                    //    var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+
+                    //    int JtotalCount = sortedDict.Count();
+
+                    //    for (int j = 0; j < JtotalCount; j++)
+                    //    {
+                    //        string name = row1.GetCell(JcellNumber + j).StringCellValue;
+                    //        double value = itemValue[name];
+
+                    //        ICell cell1J = rowq.CreateCell(JcellNumber + j);
+                    //        cell1J.SetCellValue(value);
+                    //    }
+
+                    //    JcellNumber += JtotalCount;
+                    //}
                 }
             }
 

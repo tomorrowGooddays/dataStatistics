@@ -1,9 +1,9 @@
 [
   {
-    "CnName": "耕地耕地资源质量分类面积汇总表",
+    "CnName": "耕地资源质量分类面积汇总表",
     "ExcelInfo": [
       {
-        "EnName": "FLGY",
+        "EnName": "FLDY",
         "SheetName": "GD"
       },
       {
@@ -42,7 +42,7 @@
     "CnName": "新增耕地资源质量分类面积汇总表",
     "ExcelInfo": [
       {
-        "EnName": "XZDG",
+        "EnName": "XZGD",
         "SheetName": "GD"
       },
       {

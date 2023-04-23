@@ -107,7 +107,7 @@ namespace GDDataStatistics
                         #region 全量统计
                         //DataStatisticsByTotal(filePaths);
                         #endregion
-
+                        
                         #region 按区分批统计
 
                         DataStatisticsByDistrict(filePaths);
