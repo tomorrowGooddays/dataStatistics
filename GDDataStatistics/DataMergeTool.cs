@@ -295,8 +295,9 @@ namespace GDDataStatistics
 
                     // 使用LINQ按照Key排序
                     var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+                    int typeCount = sortedDict.ToList().Count();
 
-                    for (int j = 0; j < sortedDict.ToList().Count(); j++)
+                    for (int j = 0; j < typeCount; j++)
                     {
                         var itemJ = sortedDict.ElementAt(j);
 
@@ -425,8 +426,6 @@ namespace GDDataStatistics
                 {
                     if (q == 0)
                     {
-                        //Dictionary<string, Dictionary<string, double>> dataListItem = dataInfoDic.FirstOrDefault();
-
                         int cellNumber = 3;
 
                         for (int i = 0; i < dataInfoDic.Count; i++)
@@ -441,6 +440,8 @@ namespace GDDataStatistics
 
                             int totalCount = sortedDict.Count();
 
+                            int startMergeIndex = cellNumber;
+                            int endMergeIndex = cellNumber + totalCount - 1;
                             for (int j = 0; j < totalCount; j++)
                             {
                                 ICell cell1J = row0.CreateCell(cellNumber + j);
@@ -456,6 +457,10 @@ namespace GDDataStatistics
                                 }
 
                                 cell2J.SetCellValue(sortedDict.ElementAt(j).Key);
+                            }
+                            if (endMergeIndex > startMergeIndex)
+                            {
+                                sheet.AddMergedRegion(new CellRangeAddress(0, 0, startMergeIndex, endMergeIndex));//合并单元格
                             }
 
                             cellNumber += totalCount;
