@@ -340,6 +340,12 @@ namespace GDDataStatistics
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="dataDistrictInfos">这个参数是每个类别，然后按照每个类型统计结果</param>
+        /// <exception cref="Exception"></exception>
         public static void ExportDataByNameWithDistrcit(string filePath, List<ExcelDataDistrictInfo> dataDistrictInfos)
         {
             string tableNameMapJsonFileName = "tableNameMap.json";
@@ -409,22 +415,23 @@ namespace GDDataStatistics
                 ICell cell13 = row1.CreateCell(2);
                 cell13.SetCellValue("合计");
 
-                Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataInfoDic = dataDistrictInfos[s].DataList;
+                Dictionary<string, Dictionary<string, Dictionary<string, double>>> dataDistrictInfoDic = dataDistrictInfos[s].DataDistrictList;
                 Dictionary<string, string> districtCodeAndName = dataDistrictInfos[s].DistrictNameAndCodeMap;
                 Dictionary<string, double> districtAreaTotal = dataDistrictInfos[s].DistrictTotalAmount;
 
+                Dictionary<string, Dictionary<string, double>> dataInfoDic = dataDistrictInfos[s].DataDic;
 
-                for (int q = 0; q < dataInfoDic.Count; q++)
+                for (int q = 0; q < dataDistrictInfoDic.Count; q++)
                 {
                     if (q == 0)
                     {
-                        Dictionary<string, Dictionary<string, double>> dataListItem = dataInfoDic.FirstOrDefault().Value;
+                        //Dictionary<string, Dictionary<string, double>> dataListItem = dataInfoDic.FirstOrDefault();
 
                         int cellNumber = 3;
 
-                        for (int i = 0; i < dataListItem.Count; i++)
+                        for (int i = 0; i < dataInfoDic.Count; i++)
                         {
-                            var item = dataListItem.ElementAt(i);
+                            var item = dataInfoDic.ElementAt(i);
 
                             string tileName = item.Key;
                             Dictionary<string, double> itemValue = item.Value;
@@ -438,15 +445,15 @@ namespace GDDataStatistics
                             {
                                 ICell cell1J = row0.CreateCell(cellNumber + j);
                                 ICell cell2J = row1.CreateCell(cellNumber + j);
-                                cell1J.SetCellValue(tileName);
-                                //if (j == 0)
-                                //{
-                                //    cell1J.SetCellValue(tileName);
-                                //}
-                                //else
-                                //{
-                                //    cell1J.SetCellValue("");
-                                //}
+                                //cell1J.SetCellValue(tileName);
+                                if (j == 0)
+                                {
+                                    cell1J.SetCellValue(tileName);
+                                }
+                                else
+                                {
+                                    cell1J.SetCellValue("");
+                                }
 
                                 cell2J.SetCellValue(sortedDict.ElementAt(j).Key);
                             }
@@ -455,74 +462,53 @@ namespace GDDataStatistics
                         }
                     }
 
-                    //IRow rowq = sheet.CreateRow(q + 2);
-                    //ICell cellq0 = rowq.CreateCell(0);
-                    //ICell cellq1 = rowq.CreateCell(1);
-                    //ICell cellq2 = rowq.CreateCell(2);
-                    //cellq2.CellStyle = style;
+                    IRow rowq = sheet.CreateRow(q + 2);
+                    ICell cellq0 = rowq.CreateCell(0);
+                    ICell cellq1 = rowq.CreateCell(1);
+                    ICell cellq2 = rowq.CreateCell(2);
+                    cellq2.CellStyle = style;
 
-                    //var elmentDic = dataInfoDic.ElementAt(q);
+                    var elmentDic = dataDistrictInfoDic.ElementAt(q);
 
-                    //string districtCode = elmentDic.Key;
-                    //string districtName = districtCodeAndName[districtCode];
-                    //double areaTotal = districtAreaTotal[districtCode];
+                    string districtCode = elmentDic.Key;
+                    string districtName = districtCodeAndName[districtCode];
+                    double areaTotal = districtAreaTotal[districtCode];
 
-                    //cellq0.SetCellValue(districtCode);
-                    //cellq1.SetCellValue(districtName);
-                    //cellq2.SetCellValue(areaTotal);
+                    cellq0.SetCellValue(districtCode);
+                    cellq1.SetCellValue(districtName);
+                    cellq2.SetCellValue(areaTotal);
 
-                    //Dictionary<string, Dictionary<string, double>> dataListItemQ = dataInfoDic[districtCode];
+                    Dictionary<string, Dictionary<string, double>> dataListItemQ = dataDistrictInfoDic[districtCode];
 
-                    //int JcellNumber = 3;
+                    int JcellNumber = 3;
 
-                    //for (int i = 0; i < dataListItemQ.Count; i++)//每个区有XX多列
-                    //{
-                    //    string cellName = row0.GetCell(JcellNumber).StringCellValue;
-                    //    if (!string.IsNullOrEmpty(cellName))
-                    //    {
-                    //        Dictionary<string, double> itemValue = dataListItemQ[cellName];
+                    for (int i = 0; i < dataListItemQ.Count; i++)//每个区有XX多列
+                    {
+                        string cellName = row0.GetCell(JcellNumber).StringCellValue;
+                        if (!string.IsNullOrEmpty(cellName))
+                        {
+                            Dictionary<string, double> itemValue = dataListItemQ[cellName];
 
-                    //        // 使用LINQ按照Key排序
-                    //        var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
+                            int JtotalCount = dataInfoDic[cellName].Count;//需要看总的多少行
 
-                    //        int JtotalCount = sortedDict.Count();
+                            for (int j = 0; j < JtotalCount; j++)
+                            {
+                                string name = row1.GetCell(JcellNumber + j).StringCellValue;
 
-                    //        for (int j = 0; j < JtotalCount; j++)
-                    //        {
-                    //            string name = row1.GetCell(JcellNumber + j).StringCellValue;
-                    //            double value = itemValue[name];
+                                double value = 0.00;
 
-                    //            ICell cell1J = rowq.CreateCell(JcellNumber + j);
-                    //            cell1J.SetCellValue(value);
-                    //        }
+                                if (itemValue.ContainsKey(name))
+                                {
+                                    value = itemValue[name];
+                                }
 
-                    //        JcellNumber += JtotalCount;
-                    //    }
-                    //}
+                                ICell cell1J = rowq.CreateCell(JcellNumber + j);
+                                cell1J.SetCellValue(value);
+                            }
 
-                    //for (int i = 0; i < dataListItemQ.Count; i++)
-                    //{
-                    //    var item = dataListItemQ.ElementAt(i);
-
-                    //    string tileName = item.Key;
-                    //    Dictionary<string, double> itemValue = item.Value;
-
-                    //    // 使用LINQ按照Key排序
-                    //    var sortedDict = from entry in itemValue orderby entry.Key ascending select entry;
-
-                    //    int JtotalCount = sortedDict.Count();
-
-                    //    for (int j = 0; j < JtotalCount; j++)
-                    //    {
-                    //        string name = row1.GetCell(JcellNumber + j).StringCellValue;
-                    //        double value = itemValue[name];
-
-                    //        ICell cell1J = rowq.CreateCell(JcellNumber + j);
-                    //        cell1J.SetCellValue(value);
-                    //    }
-
-                    //    JcellNumber += JtotalCount;
-                    //}
+                            JcellNumber += JtotalCount;
+                        }
+                    }
                 }
             }
 

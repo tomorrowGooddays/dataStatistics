@@ -8,6 +8,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -94,9 +95,9 @@ namespace GDDataStatistics
                     ShowInfo($"选择文件夹{this.fileName.Text}");
 
                     //返回指定目录中的文件的名称（绝对路径）
-                    string[] files = System.IO.Directory.GetFiles(dialog.SelectedPath);
+                    string[] files = Directory.GetFiles(dialog.SelectedPath);
                     //获取Test文件夹下所有文件名称
-                    List<string> filePaths = System.IO.Directory.GetFiles(dialog.SelectedPath, "*.xlsx", System.IO.SearchOption.AllDirectories).ToList();
+                    List<string> filePaths = Directory.GetFiles(dialog.SelectedPath, "*.xlsx", SearchOption.TopDirectoryOnly).ToList();
 
                     if (filePaths != null && filePaths.Count > 0)
                     {
@@ -105,12 +106,12 @@ namespace GDDataStatistics
                         this.BtnEnabled(false);
 
                         #region 全量统计
-                        //DataStatisticsByTotal(filePaths);
+                        List<ExcelDataInfo> dataList = DataStatisticsByTotal(filePaths);
                         #endregion
-                        
+
                         #region 按区分批统计
 
-                        DataStatisticsByDistrict(filePaths);
+                        DataStatisticsByDistrict(filePaths, dataList);
                         #endregion
                     }
                     else
@@ -120,7 +121,7 @@ namespace GDDataStatistics
 
                     MessageBox.Show("所有文件处理完成，请查看导出结果");
 
-                    this.BtnEnabled(true);
+                    this.BtnEnabled(true, true);
                 }
                 catch (Exception ex)
                 {
@@ -133,7 +134,7 @@ namespace GDDataStatistics
 
         }
 
-        private void DataStatisticsByTotal(List<string> filePaths)
+        private List<ExcelDataInfo> DataStatisticsByTotal(List<string> filePaths)
         {
             List<ExcelDataInfo> dataList = new List<ExcelDataInfo>();
             foreach (var filePath in filePaths)
@@ -176,9 +177,11 @@ namespace GDDataStatistics
 
                 ShowInfo("全量统计数据处理完成");
             }
+
+            return dataList;
         }
 
-        private void DataStatisticsByDistrict(List<string> filePaths)
+        private void DataStatisticsByDistrict(List<string> filePaths, List<ExcelDataInfo> dataList)
         {
             ShowInfo("开始处理分区数据统计");
 
@@ -209,9 +212,10 @@ namespace GDDataStatistics
                     ExcelDataDistrictInfo dataInfo = new ExcelDataDistrictInfo()
                     {
                         FileName = fileName,
-                        DataList = dataJson,
+                        DataDistrictList = dataJson,
                         DistrictNameAndCodeMap = dicJson2,
-                        DistrictTotalAmount = dicJson3
+                        DistrictTotalAmount = dicJson3,
+                        DataDic = dataList.FirstOrDefault(p => string.Equals(p.FileName, fileName))?.DataList
                     };
 
                     dataDistrcitList.Add(dataInfo);
@@ -228,12 +232,12 @@ namespace GDDataStatistics
             }
         }
 
-        private void BtnEnabled(bool enable)
+        private void BtnEnabled(bool enable, bool batchExport = false)
         {
             this.button1.Enabled = enable;
             this.button2.Enabled = enable;
 
-            if (enable)
+            if (enable && !batchExport)
             {
                 this.tabControl1.SelectedTab = this.tabPage1;
             }
