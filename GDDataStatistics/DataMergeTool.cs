@@ -446,7 +446,7 @@ namespace GDDataStatistics
                             {
                                 ICell cell1J = row0.CreateCell(cellNumber + j);
                                 ICell cell2J = row1.CreateCell(cellNumber + j);
-                                //cell1J.SetCellValue(tileName);
+                             
                                 if (j == 0)
                                 {
                                     cell1J.SetCellValue(tileName);
