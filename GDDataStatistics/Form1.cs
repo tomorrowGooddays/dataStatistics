@@ -139,7 +139,7 @@ namespace GDDataStatistics
             List<ExcelDataInfo> dataList = new List<ExcelDataInfo>();
             foreach (var filePath in filePaths)
             {
-                ShowInfo($"开始处理文件：{filePath}。");
+                ShowInfo($"正在处理文件：{filePath}。...");
 
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
 
@@ -188,7 +188,7 @@ namespace GDDataStatistics
             List<ExcelDataDistrictInfo> dataDistrcitList = new List<ExcelDataDistrictInfo>();
             foreach (var filePath in filePaths)
             {
-                ShowInfo($"开始处理文件：{filePath}。");
+                ShowInfo($"正在处理文件：{filePath}。");
 
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
 
@@ -228,7 +228,7 @@ namespace GDDataStatistics
 
                 DataMergeTool.ExportDataByNameWithDistrcit(this.fileName.Text, dataDistrcitList);
 
-                ShowInfo("分区统计数据处理完成");
+                ShowInfo("==========分区统计数据处理完成==========");
             }
         }
 
